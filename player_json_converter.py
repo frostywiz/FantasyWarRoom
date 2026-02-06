@@ -1,8 +1,8 @@
 import json
 import csv
 
-INPUT_JSON = "nfl.json"
-OUTPUT_CSV = "sleeper_player_map_fantasy.csv"
+INPUT_JSON = "nfl2026.json"
+OUTPUT_CSV = "sleeper_player_map_fantasy_2026.csv"
 
 ALLOWED = {"QB", "RB", "WR", "TE", "K", "DEF"}
 PREF = ["QB", "RB", "WR", "TE", "K", "DEF"]
@@ -48,6 +48,11 @@ for player_id, p in data.items():
     if not is_relevant:
         continue
 
+    # Use allowed fantasy positions if present; else fallback to NFL position
+    fantasy_positions_out = fps_allowed if fps_allowed else ([pos] if pos in ALLOWED else [])
+
+    primary_position = pick_primary(fantasy_positions_out)
+
     # Build final fantasy positions set/list
     if fps_allowed:
         fantasy_positions = sorted(set(fps_allowed), key=lambda x: PREF.index(x) if x in PREF else 999)
@@ -61,7 +66,7 @@ for player_id, p in data.items():
     rows.append({
         "player_id": as_str(player_id),
         "full_name": full_name,
-        "primary_pos": primary_pos,
+        "position": primary_pos,
         "fantasy_positions": "|".join(fantasy_positions),
 
         # identity / lookup helpers
